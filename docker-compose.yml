@@ -5,8 +5,6 @@ services:
     build: .
     ports:
       - "7000:7000"
-    depends_on:
-      - rabbitmq
     networks:
       - earthquake_network
     volumes:
