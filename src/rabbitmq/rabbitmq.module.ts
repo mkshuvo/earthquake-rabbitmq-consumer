@@ -10,7 +10,7 @@ import { RabbitmqService } from './rabbitmq.service';
         name: 'RABBITMQ_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://rabbit:rabbit@rabbitmq:5672'], // Replace with your RabbitMQ server URL
+          urls: [process.env.RABBITMQ_URL || 'amqp://rabbit:rabbit@172.20.0.3:5672/'],
           queue: 'earthquake_queue',
           queueOptions: {
             durable: true,
@@ -22,3 +22,5 @@ import { RabbitmqService } from './rabbitmq.service';
   providers: [RabbitmqService],
 })
 export class RabbitmqModule {}
+
+
