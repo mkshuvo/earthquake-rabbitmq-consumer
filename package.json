@@ -27,6 +27,7 @@
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.3",
     "reflect-metadata": "^0.1.13",
+    "retry": "^0.13.1",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {

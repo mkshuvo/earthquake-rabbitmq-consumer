@@ -8,7 +8,7 @@ services:
     ports:
       - "8000:7000"
     environment:
-      RABBITMQ_URL: "amqp://rabbit:rabbit@172.20.0.3:5672/"
+      RABBITMQ_URL: "amqp://rabbit:rabbit@rabbitmq:5672/"
     networks:
       - earthquake_network
     volumes:
