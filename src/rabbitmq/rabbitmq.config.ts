@@ -1,23 +1,11 @@
+// rabbitmq.config.ts
 import { Transport } from "@nestjs/microservices";
 
-export interface RabbitmqConfig {
-  transport: Transport,
-  options: {
-    urls: string[],
-    queue: string,
-    queueOptions: {
-      durable: boolean,
-    },
-  },
-}
-
-export const rabbitmqConfig: RabbitmqConfig = {
+export const rabbitmqConfig = {
   transport: Transport.RMQ,
   options: {
-    urls: ['amqp://rabbit:rabbit@rabbitmq:5672'], // Replace with your RabbitMQ server URL
+    urls: [process.env.RABBITMQ_URL],
     queue: 'earthquake_queue',
-    queueOptions: {
-      durable: true,
-    },
+    queueOptions: { durable: true },
   },
 };

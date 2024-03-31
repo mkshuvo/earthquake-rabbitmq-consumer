@@ -1,25 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, ClientProxyFactory, Ctx, EventPattern, MessagePattern, Payload, RmqContext, Transport } from '@nestjs/microservices'; // Import Transport
 import * as retry from 'retry';
+import { rabbitmqConfig } from './rabbitmq.config';
+import { EarthquakeDTO } from 'src/earthquake/earthquakeDTO';
 
 @Injectable()
 export class RabbitmqService implements OnModuleInit {
+  private client: ClientProxy;
 
-  private readonly client: ClientProxy;
-
-  constructor() {
-    this.client = ClientProxyFactory.create({
-      transport: Transport.RMQ,
-      options: {
-        urls: [process.env.RABBITMQ_URL],
-        queue: 'earthquake_queue',
-        queueOptions: {
-          durable: false,
-        },
-      },
-    });
-  }
+  constructor() {}
 
   async onModuleInit() {
     await this.connectWithRetry();
@@ -27,14 +16,17 @@ export class RabbitmqService implements OnModuleInit {
 
   private async connectWithRetry() {
     const operation = retry.operation({
-      retries: 10, // Adjust the number of retries as needed
+      retries: 10,
       factor: 2,
-      minTimeout: 1000, // Adjust the timeout as needed
+      minTimeout: 1000,
     });
 
     operation.attempt(async (currentAttempt) => {
       try {
-        await this.client.connect();
+        this.client = await ClientProxyFactory.create({
+          transport: Transport.RMQ, // Specify the transport as RMQ (RabbitMQ)
+          options: rabbitmqConfig.options,
+        });
         console.log('Connected to RabbitMQ');
       } catch (error) {
         console.error(`Error connecting to RabbitMQ (attempt ${currentAttempt}):`, error);
@@ -47,14 +39,13 @@ export class RabbitmqService implements OnModuleInit {
     });
   }
 
-  async handleMessage(message: any): Promise<any> {
+  async handleMessage(@Payload() data: EarthquakeDTO): Promise<any> {
     try {
-      console.log(`Received message: ${JSON.stringify(message)}`);
+      console.log(`Received message: ${JSON.stringify(data)}`);
       // Process the message as needed
       return 'Message processed successfully';
     } catch (error) {
       console.error(`Error processing message: ${error.message}`);
-      // Handle the error accordingly
       throw error;
     }
   }

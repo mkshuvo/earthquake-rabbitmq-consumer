@@ -16,4 +16,4 @@ services:
 
 networks:
   earthquake_network:
-    external: true
+    driver: bridge

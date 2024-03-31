@@ -1,26 +1,20 @@
-// rabbitmq.module.ts
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { rabbitmqConfig } from './rabbitmq.config';
 import { RabbitmqService } from './rabbitmq.service';
+import { RabbitmqController } from './rabbitmq.controller';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: 'RABBITMQ_SERVICE',
+        name: 'RABBITMQ_CLIENT',
         transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RABBITMQ_URL],
-          queue: 'earthquake_queue',
-          queueOptions: {
-            durable: true,
-          },
-        },
+        options: rabbitmqConfig.options,
       },
     ]),
   ],
   providers: [RabbitmqService],
+  controllers: [RabbitmqController],
 })
 export class RabbitmqModule {}
-
-
