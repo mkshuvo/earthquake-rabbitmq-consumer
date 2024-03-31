@@ -39,7 +39,7 @@ export class RabbitmqService implements OnModuleInit {
     });
   }
 
-  async handleMessage(@Payload() data: EarthquakeDTO): Promise<any> {
+  handleMessage(@Payload() data: any) {
     try {
       console.log(`Received message: ${JSON.stringify(data)}`);
       // Process the message as needed

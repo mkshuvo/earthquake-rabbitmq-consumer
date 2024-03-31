@@ -8,8 +8,8 @@ import { rabbitmqConfig } from './rabbitmq.config';
 export class RabbitmqController {
   constructor(private readonly rabbitmqService: RabbitmqService) {}
 
-  @EventPattern(rabbitmqConfig.options.queue)
-  handleMessage(@Payload() earthquake: EarthquakeDTO) {
-    return this.rabbitmqService.handleMessage(earthquake);
+  @EventPattern('earthquake_queue')
+  handleMessage(earthquake: any) {
+    return this.rabbitmqService.handleMessage(JSON.stringify(earthquake));
   }
 }
