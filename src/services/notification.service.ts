@@ -10,7 +10,7 @@ export class NotificationService {
   constructor() {
     // Initialize MQTT client for push notifications
     // Use environment variable for MQTT URL, default to docker container name when running in Docker
-    const mqttUrl = process.env.MQTT_URL || 'mqtt://mqtt:1883';
+    const mqttUrl = process.env.MQTT_URL || 'mqtt://emqx:1883';
     this.mqttClient = ClientProxyFactory.create({
       transport: Transport.MQTT,
       options: {

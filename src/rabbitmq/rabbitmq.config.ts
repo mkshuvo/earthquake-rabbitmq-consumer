@@ -7,5 +7,10 @@ export const rabbitmqConfig = {
     urls: [process.env.RABBITMQ_URL],
     queue: 'earthquake_queue',
     queueOptions: { durable: true },
+    noAck: false,
+    prefetchCount: 1,
+    socketOptions: {
+      heartbeat: 60,
+    },
   },
 };

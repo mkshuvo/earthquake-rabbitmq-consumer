@@ -14,23 +14,9 @@ services:
       - "8000:7000"
     environment:
       RABBITMQ_URL: "amqp://rabbit:rabbit@rabbitmq:5672/"
-      MQTT_URL: "mqtt://mqtt:1883"
+      MQTT_URL: "mqtt://emqx:1883"
     networks:
       - earthquake_network
     volumes:
       - .:/app
-    depends_on:
-      - mqtt
-
-  mqtt:
-    container_name: ea-mqtt
-    image: eclipse-mosquitto:2.0
-    ports:
-      - "1883:1883"
-      - "9001:9001"
-    networks:
-      - earthquake_network
-    volumes:
-      - ./mqtt_data:/mosquitto/data
-      - ./mqtt_logs:/mosquitto/log
 
