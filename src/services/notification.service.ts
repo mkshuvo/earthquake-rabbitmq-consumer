@@ -1,6 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EarthquakeEvent, EarthquakeNotification } from '../earthquake/earthquake.interface';
-import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
+import {
+  EarthquakeEvent,
+  EarthquakeNotification,
+} from '../earthquake/earthquake.interface';
+import {
+  ClientProxy,
+  ClientProxyFactory,
+  Transport,
+} from '@nestjs/microservices';
 
 @Injectable()
 export class NotificationService {
@@ -25,30 +32,36 @@ export class NotificationService {
     });
   }
 
-  async sendPushNotification(notification: EarthquakeNotification): Promise<void> {
+  async sendPushNotification(
+    notification: EarthquakeNotification,
+  ): Promise<void> {
     try {
       // Publish to MQTT topic based on priority
       const topic = `earthquake/alert/${notification.data.priority}`;
-      
+
       // Send notification to MQTT broker
       await this.mqttClient.emit(topic, notification);
-      
-      this.logger.log(`Push notification sent to MQTT topic ${topic}: ${notification.title}`);
-      
+
+      this.logger.log(
+        `Push notification sent to MQTT topic ${topic}: ${notification.title}`,
+      );
     } catch (error) {
       this.logger.error('Error sending push notification via MQTT:', error);
       throw error;
     }
   }
 
-  async sendWebSocketNotification(notification: EarthquakeNotification): Promise<void> {
+  async sendWebSocketNotification(
+    notification: EarthquakeNotification,
+  ): Promise<void> {
     try {
       // TODO: Implement WebSocket broadcast to web clients
-      this.logger.log(`WebSocket notification would be sent: ${notification.title}`);
-      
+      this.logger.log(
+        `WebSocket notification would be sent: ${notification.title}`,
+      );
+
       // Placeholder for WebSocket implementation
       // this.socketGateway.broadcast('earthquake.alert', notification);
-      
     } catch (error) {
       this.logger.error('Error sending WebSocket notification:', error);
       throw error;
@@ -59,8 +72,10 @@ export class NotificationService {
     try {
       // Only send email for critical earthquakes (magnitude >= 7.0)
       if (earthquake.magnitude >= 7.0) {
-        this.logger.log(`Critical earthquake email alert would be sent for M${earthquake.magnitude}`);
-        
+        this.logger.log(
+          `Critical earthquake email alert would be sent for M${earthquake.magnitude}`,
+        );
+
         // TODO: Implement email service (using NodeMailer or AWS SES)
         // const emailContent = {
         //   to: 'alerts@earthquake-system.com',
@@ -75,7 +90,7 @@ export class NotificationService {
         //     <p><a href="${earthquake.url}">View Details</a></p>
         //   `
         // };
-        
+
         // await this.emailService.send(emailContent);
       }
     } catch (error) {
@@ -84,7 +99,9 @@ export class NotificationService {
     }
   }
 
-  getDetermineAlertPriority(magnitude: number): 'low' | 'medium' | 'high' | 'critical' {
+  getDetermineAlertPriority(
+    magnitude: number,
+  ): 'low' | 'medium' | 'high' | 'critical' {
     if (magnitude >= 7.0) {
       return 'critical';
     } else if (magnitude >= 5.5) {
@@ -96,12 +113,15 @@ export class NotificationService {
     }
   }
 
-  shouldSendNotification(earthquake: EarthquakeEvent, priority: 'low' | 'medium' | 'high' | 'critical'): boolean {
+  shouldSendNotification(
+    earthquake: EarthquakeEvent,
+    priority: 'low' | 'medium' | 'high' | 'critical',
+  ): boolean {
     // Only send notifications for medium priority and above
     const priorityLevels = ['low', 'medium', 'high', 'critical'];
     const minPriorityIndex = priorityLevels.indexOf('medium');
     const currentPriorityIndex = priorityLevels.indexOf(priority);
-    
+
     return currentPriorityIndex >= minPriorityIndex;
   }
 }

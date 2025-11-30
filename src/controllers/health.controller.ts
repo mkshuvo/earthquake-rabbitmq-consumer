@@ -13,7 +13,7 @@ export class HealthController {
       service: 'earthquake-rabbitmq-consumer',
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      version: process.env.npm_package_version || '1.0.0'
+      version: process.env.npm_package_version || '1.0.0',
     };
 
     this.logger.log(`Health check requested: ${health.status}`);
@@ -26,7 +26,7 @@ export class HealthController {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       service: 'earthquake-rabbitmq-consumer-microservice',
-      uptime: process.uptime()
+      uptime: process.uptime(),
     };
   }
 }

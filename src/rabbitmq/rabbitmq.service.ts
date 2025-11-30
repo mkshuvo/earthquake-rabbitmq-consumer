@@ -1,8 +1,19 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { ClientProxy, ClientProxyFactory, Ctx, MessagePattern, Payload, RmqContext, Transport } from '@nestjs/microservices';
+import {
+  ClientProxy,
+  ClientProxyFactory,
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+  Transport,
+} from '@nestjs/microservices';
 import * as retry from 'retry';
 import { rabbitmqConfig } from './rabbitmq.config';
-import { EarthquakeEvent, EarthquakeNotification } from 'src/earthquake/earthquake.interface';
+import {
+  EarthquakeEvent,
+  EarthquakeNotification,
+} from 'src/earthquake/earthquake.interface';
 import { NotificationService } from '../services/notification.service';
 
 @Injectable()
@@ -10,7 +21,7 @@ export class RabbitmqService implements OnModuleInit {
   private readonly logger = new Logger(RabbitmqService.name);
   private client: ClientProxy;
 
-  constructor(private readonly notificationService: NotificationService) { }
+  constructor(private readonly notificationService: NotificationService) {}
 
   async onModuleInit() {
     await this.connectWithRetry();
@@ -31,7 +42,10 @@ export class RabbitmqService implements OnModuleInit {
         });
         this.logger.log('Connected to RabbitMQ successfully');
       } catch (error) {
-        this.logger.error(`Error connecting to RabbitMQ (attempt ${currentAttempt}):`, error);
+        this.logger.error(
+          `Error connecting to RabbitMQ (attempt ${currentAttempt}):`,
+          error,
+        );
         if (operation.retry(error)) {
           return;
         }
@@ -41,7 +55,10 @@ export class RabbitmqService implements OnModuleInit {
     });
   }
 
-  async processEarthquakeEvent(earthquake: EarthquakeEvent, context: RmqContext) {
+  async processEarthquakeEvent(
+    earthquake: EarthquakeEvent,
+    context: RmqContext,
+  ) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -54,7 +71,6 @@ export class RabbitmqService implements OnModuleInit {
       // Acknowledge the message
       channel.ack(originalMsg);
       this.logger.log(`Successfully processed earthquake ${earthquake.id}`);
-
     } catch (error) {
       this.logger.error(`Error processing earthquake ${earthquake.id}:`, error);
 
@@ -67,19 +83,29 @@ export class RabbitmqService implements OnModuleInit {
     const magnitude = earthquake.magnitude;
 
     // Determine alert priority based on magnitude
-    const alertPriority = this.notificationService.getDetermineAlertPriority(magnitude);
+    const alertPriority =
+      this.notificationService.getDetermineAlertPriority(magnitude);
 
-    this.logger.log(`Earthquake alert - Magnitude: ${magnitude}, Priority: ${alertPriority}`);
+    this.logger.log(
+      `Earthquake alert - Magnitude: ${magnitude}, Priority: ${alertPriority}`,
+    );
 
     // Only send notifications if priority threshold is met
-    if (this.notificationService.shouldSendNotification(earthquake, alertPriority)) {
+    if (
+      this.notificationService.shouldSendNotification(earthquake, alertPriority)
+    ) {
       await this.sendNotifications(earthquake, alertPriority);
     } else {
-      this.logger.log(`Skipping notification for low priority earthquake: M${magnitude}`);
+      this.logger.log(
+        `Skipping notification for low priority earthquake: M${magnitude}`,
+      );
     }
   }
 
-  private async sendNotifications(earthquake: EarthquakeEvent, priority: 'low' | 'medium' | 'high' | 'critical') {
+  private async sendNotifications(
+    earthquake: EarthquakeEvent,
+    priority: 'low' | 'medium' | 'high' | 'critical',
+  ) {
     try {
       // Create notification payload
       const notification: EarthquakeNotification = {
@@ -90,8 +116,8 @@ export class RabbitmqService implements OnModuleInit {
           magnitude: earthquake.magnitude,
           location: earthquake.location,
           timestamp: earthquake.timestamp,
-          priority: priority
-        }
+          priority: priority,
+        },
       };
 
       // Send push notifications to mobile devices
@@ -103,8 +129,9 @@ export class RabbitmqService implements OnModuleInit {
       // Send email alerts for critical earthquakes
       await this.notificationService.sendEmailAlert(earthquake);
 
-      this.logger.log(`All notifications sent successfully for earthquake ${earthquake.id}`);
-
+      this.logger.log(
+        `All notifications sent successfully for earthquake ${earthquake.id}`,
+      );
     } catch (error) {
       this.logger.error('Error sending notifications:', error);
       throw error;
@@ -117,7 +144,7 @@ export class RabbitmqService implements OnModuleInit {
       return {
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        service: 'earthquake-rabbitmq-consumer'
+        service: 'earthquake-rabbitmq-consumer',
       };
     } catch (error) {
       this.logger.error(`Health check failed: ${error.message}`);
