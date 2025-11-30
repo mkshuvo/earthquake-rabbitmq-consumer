@@ -8,14 +8,22 @@ import { rabbitmqConfig } from './rabbitmq.config';
 export class RabbitmqController {
   constructor(private readonly rabbitmqService: RabbitmqService) { }
 
+  // Listen to earthquake.new pattern from direct AMQP messages
   @EventPattern('earthquake.new')
-  async handleMessage(@Payload() earthquake: any, @Ctx() context: any) {
-    // Parse earthquake if it's a string, otherwise use as is
-    const earthquakeData = typeof earthquake === 'string' ? JSON.parse(earthquake) : earthquake;
-
-    // Handle the case where the data might be wrapped in a 'data' property (common in some NestJS microservice setups)
-    const payload = earthquakeData.data || earthquakeData;
-
-    return this.rabbitmqService.processEarthquakeEvent(payload, context);
+  async handleNewEarthquake(@Payload() data: any, @Ctx() context: any) {
+    console.log('\n[RabbitmqController] Received earthquake event:', JSON.stringify(data).substring(0, 200));
+    
+    // Handle both direct AMQP messages and NestJS microservice format
+    let earthquakes = data?.data || data?.earthquakes || data;
+    
+    // If it's a single earthquake object, wrap in array
+    if (!Array.isArray(earthquakes)) {
+      earthquakes = [earthquakes];
+    }
+    
+    // Process each earthquake
+    for (const earthquake of earthquakes) {
+      await this.rabbitmqService.processEarthquakeEvent(earthquake, context);
+    }
   }
 }

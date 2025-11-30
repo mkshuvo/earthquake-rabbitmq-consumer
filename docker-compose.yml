@@ -14,7 +14,7 @@ services:
       - "8000:7000"
     environment:
       RABBITMQ_URL: "amqp://rabbit:rabbit@rabbitmq:5672/"
-      MQTT_URL: "mqtt://emqx:1883"
+      MQTT_URL: "mqtt://ea-emqx:1883"
     networks:
       - earthquake_network
     volumes:
