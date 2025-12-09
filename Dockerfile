@@ -1,20 +1,15 @@
-# Use an official Node runtime as a parent image
 FROM node:24-alpine3.22
 
-# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install app dependencies
 RUN npm install
 
-# Bundle app source
 COPY . .
 
-# Expose the port the app runs on
+RUN npm run build
+
 EXPOSE 7000
 
-# Start the application
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:prod"]

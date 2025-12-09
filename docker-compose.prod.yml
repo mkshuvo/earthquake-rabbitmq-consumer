@@ -1,0 +1,20 @@
+version: '3.8'
+
+networks:
+  earthquake_network:
+    external: true
+
+services:
+  app:
+    container_name: ea-receiver
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:7000"
+    environment:
+      RABBITMQ_URL: "amqp://rabbit:rabbit@rabbitmq:5672/"
+      MQTT_URL: "mqtt://ea-emqx:1883"
+      PORT: 7000
+    networks:
+      - earthquake_network
